@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F3F5F8">
+<meta name="robots" content="noindex">
+<title>福福成长清单</title>
+<style>
+/* 视觉沿用桔子工作台的设计规范（浅色玻璃 + 马卡龙色），字号整体放大一档，方便外婆在手机上看 */
+:root{
+  color-scheme:light;
+  --ink:#17171C;--ink2:#4B4F57;--mute:#868B94;--faint:#B4B8C0;
+  --line:rgba(28,32,56,.08);--fill:rgba(28,32,56,.06);
+  --lime:#DDF39A;--lime-ink:#4A6212;--mint:#A3DCCF;--mint-ink:#1F6B5A;
+  --lav:#CEC8E0;--lav-ink:#574A99;--peach:#FFC9A3;--peach-ink:#A8430E;--pink:#F6B1B9;--pink-ink:#B42A45;
+  --r-card:24px;--r-tile:18px;--r-ctl:14px;--r-pill:999px;
+  --sh-card:0 20px 48px -30px rgba(40,36,90,.16),0 1px 0 rgba(255,255,255,.9) inset;
+  --sh-ctl:0 2px 6px -2px rgba(40,36,90,.14);
+  --spring:.2s cubic-bezier(.22,1,.36,1);
+  --sans:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;min-height:100vh;background:#F3F5F8;color:var(--ink);font:400 17px/1.6 var(--sans);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+body::before{content:"";position:fixed;inset:-10%;z-index:-1;pointer-events:none;filter:blur(40px);opacity:.38;
+  background:radial-gradient(40% 30% at 12% 8%,var(--peach),transparent 70%),radial-gradient(38% 28% at 92% 18%,var(--lav),transparent 70%),radial-gradient(42% 30% at 70% 92%,var(--mint),transparent 70%)}
+button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:pointer}
+.wrap{max-width:640px;margin:0 auto;padding:max(20px,env(safe-area-inset-top)) 16px calc(100px + env(safe-area-inset-bottom))}
+
+/* 顶部 */
+.top{display:flex;align-items:flex-start;gap:12px;margin:4px 4px 18px}
+.top h1{margin:0;font:600 26px/1.25 var(--sans);letter-spacing:.01em}
+.top h1 small{display:block;margin-top:4px;font:400 15px/1.4 var(--sans);color:var(--ink2)}
+.icb{flex:none;margin-left:auto;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.72);box-shadow:var(--sh-ctl);transition:transform var(--spring)}
+.icb:active{transform:scale(.9)}
+.icb svg{width:20px;height:20px;stroke:var(--ink2);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.icb.spin svg{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* 分段 */
+.seg{display:flex;gap:4px;padding:4px;border-radius:var(--r-pill);background:var(--fill)}
+.seg button{flex:1;height:44px;border-radius:var(--r-pill);font:500 16px/1 var(--sans);color:var(--ink2);transition:background var(--spring),transform var(--spring)}
+.seg button:active{transform:scale(.96)}
+.seg button[aria-pressed="true"]{background:#fff;color:var(--ink);box-shadow:var(--sh-ctl)}
+.seg button b{font-weight:500;color:var(--mute);margin-left:4px}
+.main-seg{margin-bottom:16px;background:rgba(255,255,255,.5)}
+
+.card{background:linear-gradient(160deg,rgba(255,255,255,.92),rgba(255,255,255,.74));border:1px solid rgba(255,255,255,.9);border-radius:var(--r-card);box-shadow:var(--sh-card);padding:20px 18px;margin-bottom:16px}
+
+/* 技能总览 */
+.sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.sum div{border-radius:var(--r-tile);padding:12px 12px 10px}
+.sum b{display:block;font:500 26px/1.1 var(--sans)}
+.sum span{font-size:14px}
+.sum .l2{background:var(--mint);color:var(--mint-ink)}.sum .l1{background:var(--lime);color:var(--lime-ink)}.sum .l0{background:var(--fill);color:var(--ink2)}
+.bar{display:flex;height:8px;border-radius:var(--r-pill);overflow:hidden;background:var(--fill);margin-bottom:18px}
+.bar i{display:block;height:100%}
+.hint{margin:10px 2px 0;font-size:14px;color:var(--mute);line-height:1.5}
+
+/* 技能列表 */
+.dim{margin:22px 2px 2px;font:600 15px/1.3 var(--sans);color:var(--ink2);display:flex;gap:6px;align-items:baseline}
+.dim span{font-weight:400;color:var(--mute);font-size:14px}
+.dim:first-child{margin-top:6px}
+.sk{padding:14px 0;border-bottom:1px solid var(--line)}
+.sk:last-child{border-bottom:0}
+.sk .n{font:500 17px/1.45 var(--sans)}
+.sk .c{font-size:13px;color:var(--mute);margin-top:2px}
+.sk .c .by{color:var(--peach-ink)}
+.lv{display:flex;gap:6px;margin-top:10px}
+.lv button{flex:1;height:42px;border-radius:var(--r-pill);background:rgba(255,255,255,.55);box-shadow:inset 0 0 0 1px rgba(28,32,56,.1);font:500 15px/1 var(--sans);color:var(--mute);transition:background var(--spring),color var(--spring),transform var(--spring)}
+.lv button:active{transform:scale(.95)}
+.lv button[aria-pressed="true"]{font-weight:600;box-shadow:none}
+.lv button[aria-pressed="true"]::before{content:"✓ "}
+.lv button[aria-pressed="true"][data-l="不会"]{background:#DADDE5;color:var(--ink)}
+.lv button[aria-pressed="true"][data-l="会"]{background:var(--lime);color:var(--lime-ink)}
+.lv button[aria-pressed="true"][data-l="熟练"]{background:var(--mint);color:var(--mint-ink)}
+.lv.busy{opacity:.55;pointer-events:none}
+.empty{padding:28px 0 12px;text-align:center;color:var(--mute)}
+
+/* 本周要点 */
+.chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -18px 6px;padding:0 18px 4px}
+.chips::-webkit-scrollbar{display:none}
+.chips button{flex:none;height:36px;padding:0 16px;border-radius:var(--r-pill);background:rgba(255,255,255,.7);box-shadow:var(--sh-ctl);font:500 15px/1 var(--sans);color:var(--ink2);transition:transform var(--spring)}
+.chips button:active{transform:scale(.95)}
+.chips button[aria-pressed="true"]{background:#1F2026;color:#fff;box-shadow:none}
+.tip{padding:18px 0;border-bottom:1px solid var(--line)}
+.tip:last-child{border-bottom:0;padding-bottom:4px}
+.tip h3{margin:0 0 8px;font:600 18px/1.45 var(--sans)}
+.tip .tag{display:inline-block;height:24px;line-height:24px;padding:0 10px;border-radius:var(--r-pill);background:var(--lav);color:var(--lav-ink);font-size:13px;font-weight:500;margin-bottom:8px}
+.tip p{margin:0;color:var(--ink2);white-space:pre-line;line-height:1.75}
+
+.foot{text-align:center;font-size:13px;color:var(--mute);margin-top:8px;line-height:1.7}
+.err{background:#FFF1E8;color:var(--peach-ink);border-radius:var(--r-tile);padding:14px 16px;margin-bottom:16px;font-size:15px;display:flex;gap:12px;align-items:center}
+.err button{margin-left:auto;flex:none;height:36px;padding:0 14px;border-radius:var(--r-pill);background:#fff;font-weight:500;box-shadow:var(--sh-ctl)}
+.toast{position:fixed;left:50%;bottom:calc(36px + env(safe-area-inset-bottom));transform:translate(-50%,20px);opacity:0;pointer-events:none;
+  background:#1F2026;color:#fff;font-size:15px;padding:12px 20px;border-radius:var(--r-pill);transition:opacity .2s,transform var(--spring);width:max-content;max-width:calc(100vw - 48px);text-align:center}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1 id="title">福福成长清单<small id="age">正在读取……</small></h1>
+    <button class="icb" id="reload" aria-label="刷新"><svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg></button>
+  </header>
+  <div class="err" id="err" hidden><span id="errText">连不上，稍后再试</span><button id="retry">再试一次</button></div>
+  <nav class="seg main-seg" id="tabs">
+    <button data-tab="skills" aria-pressed="true">技能清单</button>
+    <button data-tab="tips" aria-pressed="false">本周要点</button>
+  </nav>
+  <main id="skills"></main>
+  <main id="tips" hidden></main>
+  <p class="foot" id="foot"></p>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+(() => {
+  'use strict';
+  // 中转站地址（Cloudflare Worker）；本地测试可以在网址后加 ?api=http://localhost:8787
+  const API = new URLSearchParams(location.search).get('api') || 'https://fufu-waipo.hlj-shiguang.workers.dev';
+  const LEVELS = ['不会', '会', '熟练'];
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const ui = { tab: 'skills', sk: '在练', topic: '全部' };
+  try { Object.assign(ui, JSON.parse(localStorage.getItem('fufu-ui') || '{}')); } catch (e) {}
+  const saveUi = () => { try { localStorage.setItem('fufu-ui', JSON.stringify(ui)); } catch (e) {} };
+  let S = null;   // 最近一次读到的数据
+
+  /* 月龄：跟工作台一样按本地日期算 */
+  const ymd = (s) => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+  const addMonths = (d, n) => { const x = new Date(d.getFullYear(), d.getMonth() + n, 1); x.setDate(Math.min(d.getDate(), new Date(x.getFullYear(), x.getMonth() + 1, 0).getDate())); return x; };
+  const day0 = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  function age(birth) {
+    const now = new Date(); let m = (now.getFullYear() - birth.getFullYear()) * 12 + now.getMonth() - birth.getMonth();
+    if (day0(now) < addMonths(birth, m)) m--;
+    return { m, d: Math.round((day0(now) - addMonths(birth, m)) / 864e5) };
+  }
+  const when = (t) => { if (!t) return ''; const d = new Date(t); return `${d.getMonth() + 1} 月 ${d.getDate()} 日 ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; };
+
+  let toastTimer = 0;
+  function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('on'), 2400); }
+
+  function render() {
+    if (!S) return;
+    const a = S.birth ? age(ymd(S.birth)) : null, m = a ? a.m : 0;
+    $('title').firstChild.textContent = `${S.name || '福福'}成长清单`;
+    $('age').textContent = a ? `${a.m} 个月${a.d ? ` ${a.d} 天` : ''} · 外婆点一下就能改` : '外婆点一下就能改';
+    document.querySelectorAll('#tabs button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.tab === ui.tab)));
+    $('skills').hidden = ui.tab !== 'skills'; $('tips').hidden = ui.tab !== 'tips';
+    renderSkills(m); renderTips(m);
+    $('foot').textContent = S.synced ? `桔子那边上次同步：${when(S.synced)}` : '';
+  }
+
+  function renderSkills(m) {
+    const all = S.skills, lv = (s) => LEVELS.indexOf(s.level);
+    const cnt = [0, 1, 2].map((l) => all.filter((s) => lv(s) === l).length);
+    const groups = { 在练: all.filter((s) => lv(s) < 2 && s.month >= m), 补练: all.filter((s) => lv(s) < 2 && s.month < m), 已熟练: all.filter((s) => lv(s) === 2) };
+    if (!groups[ui.sk]) ui.sk = '在练';
+    const pct = (n) => (all.length ? (n / all.length) * 100 : 0);
+    const note = { 在练: `${m} 个月这一档还没熟练的`, 补练: '之前月龄还没熟练的，可以多练练', 已熟练: '已经熟练的，改回「会」就会回到在练或补练' }[ui.sk];
+    const rows = groups[ui.sk], dims = [];
+    rows.forEach((s) => { if (!dims.includes(s.dim)) dims.push(s.dim); });
+    $('skills').innerHTML = `
+      <section class="card">
+        <div class="sum"><div class="l2"><b>${cnt[2]}</b><span>熟练</span></div><div class="l1"><b>${cnt[1]}</b><span>会</span></div><div class="l0"><b>${cnt[0]}</b><span>不会</span></div></div>
+        <div class="bar"><i style="width:${pct(cnt[2])}%;background:#95D6C5"></i><i style="width:${pct(cnt[1])}%;background:#D3EE88"></i></div>
+        <nav class="seg" id="skseg">${Object.keys(groups).map((k) => `<button data-k="${k}" aria-pressed="${k === ui.sk}">${k}<b>${groups[k].length}</b></button>`).join('')}</nav>
+        <p class="hint">${note}</p>
+      </section>
+      <section class="card">${rows.length ? dims.map((d) => {
+        const list = rows.filter((s) => s.dim === d);
+        return `<div class="dim">${esc(d)}<span>${list.length} 项</span></div>` + list.map((s) => `
+          <div class="sk" data-k="${esc(s.k)}">
+            <div class="n">${esc(s.name)}</div>
+            <div class="c">${s.month} 月龄${s.by === '外婆' && s.t ? ` · <span class="by">外婆 ${when(s.t)} 改过</span>` : ''}</div>
+            <div class="lv">${LEVELS.map((l) => `<button data-l="${l}" aria-pressed="${s.level === l}">${l}</button>`).join('')}</div>
+          </div>`).join('');
+      }).join('') : `<div class="empty">${ui.sk === '补练' ? '没有要补练的' : '这一栏是空的'}</div>`}</section>`;
+  }
+
+  function renderTips(m) {
+    const tips = S.tips.filter((t) => m >= t.lo && m <= t.hi);
+    const topics = [...new Set(tips.map((t) => t.topic))];
+    if (ui.topic !== '全部' && !topics.includes(ui.topic)) ui.topic = '全部';
+    const shown = tips.filter((t) => ui.topic === '全部' || t.topic === ui.topic);
+    $('tips').innerHTML = `<section class="card">${tips.length ? `
+      <div class="chips" id="tchips">${['全部', ...topics].map((t) => `<button data-t="${esc(t)}" aria-pressed="${t === ui.topic}">${esc(t)}</button>`).join('')}</div>
+      ${shown.map((t) => `<article class="tip"><span class="tag">${esc(t.topic)}</span><h3>${esc(t.title)}</h3><p>${esc(t.body)}</p></article>`).join('')}`
+      : '<div class="empty">这个月龄还没有要点</div>'}</section>`;
+  }
+
+  async function load(quiet) {
+    $('reload').classList.add('spin');
+    try {
+      const r = await fetch(`${API}/api/state`, { cache: 'no-store' });
+      if (!r.ok) throw new Error(`服务器回了 ${r.status}`);
+      S = await r.json(); $('err').hidden = true;
+      try { localStorage.setItem('fufu-state', JSON.stringify(S)); } catch (e) {}
+      render();
+      if (!quiet) toast('已是最新');
+    } catch (e) {
+      $('errText').textContent = S ? '连不上，下面是上次看到的内容' : '连不上，稍后再试';
+      $('err').hidden = false;
+    } finally { $('reload').classList.remove('spin'); }
+  }
+
+  async function setLevel(row, level) {
+    const k = row.dataset.k, s = S.skills.find((x) => x.k === k); if (!s || s.level === level) return;
+    const prev = { level: s.level, t: s.t, by: s.by }, box = row.querySelector('.lv');
+    Object.assign(s, { level, t: Date.now(), by: '外婆' });
+    box.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.l === level)));
+    box.classList.add('busy');
+    try {
+      const r = await fetch(`${API}/api/level`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ k, level }) });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(j.error || `服务器回了 ${r.status}`);
+      if (j.t) s.t = j.t;
+      try { localStorage.setItem('fufu-state', JSON.stringify(S)); } catch (e) {}
+      toast(`已改成「${level}」，桔子那边会同步`);
+      row.querySelector('.c').innerHTML = `${s.month} 月龄 · <span class="by">外婆 ${when(s.t)} 改过</span>`;
+    } catch (e) {
+      Object.assign(s, prev);
+      box.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.l === prev.level)));
+      toast(`没存上：${e.message || '网络不好'}，再点一次试试`);
+    } finally { box.classList.remove('busy'); }
+  }
+
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.tab) { ui.tab = b.dataset.tab; saveUi(); render(); window.scrollTo(0, 0); return; }
+    if (b.closest('#skseg')) { ui.sk = b.dataset.k; saveUi(); render(); return; }
+    if (b.closest('#tchips')) { ui.topic = b.dataset.t; saveUi(); render(); return; }
+    if (b.dataset.l) { setLevel(b.closest('.sk'), b.dataset.l); return; }
+    if (b.id === 'reload' || b.id === 'retry') load();
+  });
+  // 切回这个页面时自动取一次最新的
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && S) load(true); });
+
+  try { const c = JSON.parse(localStorage.getItem('fufu-state') || 'null'); if (c && c.skills) { S = c; render(); } } catch (e) {}
+  load(true);
+})();
+</script>
+</body>
+</html>

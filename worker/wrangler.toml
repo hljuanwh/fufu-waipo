@@ -1,0 +1,8 @@
+name = "fufu-waipo"
+main = "src/index.js"
+compatibility_date = "2025-09-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "fufu-waipo"
+database_id = "3fc1d4d4-2e8f-4089-b5fc-b1a44634cf0b"
