@@ -75,7 +75,6 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
 .lv button[aria-pressed="true"][data-l="不会"]{background:#DADDE5;color:var(--ink)}
 .lv button[aria-pressed="true"][data-l="会"]{background:var(--lime);color:var(--lime-ink)}
 .lv button[aria-pressed="true"][data-l="熟练"]{background:var(--mint);color:var(--mint-ink)}
-.lv.busy{opacity:.55;pointer-events:none}
 .empty{padding:28px 0 12px;text-align:center;color:var(--mute)}
 
 /* 本周要点 */
@@ -118,15 +117,20 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
 <script>
 (() => {
   'use strict';
-  // 中转站地址（Cloudflare Worker）；本地测试可以在网址后加 ?api=http://localhost:8787
-  const API = new URLSearchParams(location.search).get('api') || 'https://fufu-waipo.hlj-shiguang.workers.dev';
+  // 清单（技能、本周要点）由桔子的 Obsidian 每晚导出到同目录的 data.json；外婆点的等级只存在这台手机上（localStorage 的 fufu-mine）
+  // 外婆没点过的项跟着桔子的等级走；点过的只听外婆的
   const LEVELS = ['不会', '会', '熟练'];
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const ui = { tab: 'skills', sk: '在练', topic: '全部' };
-  try { Object.assign(ui, JSON.parse(localStorage.getItem('fufu-ui') || '{}')); } catch (e) {}
-  const saveUi = () => { try { localStorage.setItem('fufu-ui', JSON.stringify(ui)); } catch (e) {} };
-  let S = null;   // 最近一次读到的数据
+  const store = {
+    get(k, d) { try { return JSON.parse(localStorage.getItem(k) || 'null') || d; } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } },
+  };
+  const ui = Object.assign({ tab: 'skills', sk: '在练', topic: '全部' }, store.get('fufu-ui', {}));
+  const saveUi = () => store.set('fufu-ui', ui);
+  const mine = store.get('fufu-mine', {});   // { "23|名称": { level: "会", t: 毫秒 } }
+  let S = store.get('fufu-data', null);       // 上次读到的清单，打不开时先显示它
+  const lvOf = (s) => (mine[s.k] && LEVELS.includes(mine[s.k].level) ? mine[s.k].level : s.level);
 
   /* 月龄：跟工作台一样按本地日期算 */
   const ymd = (s) => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
@@ -137,24 +141,30 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
     if (day0(now) < addMonths(birth, m)) m--;
     return { m, d: Math.round((day0(now) - addMonths(birth, m)) / 864e5) };
   }
-  const when = (t) => { if (!t) return ''; const d = new Date(t); return `${d.getMonth() + 1} 月 ${d.getDate()} 日 ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; };
+  const when = (t) => { if (!t) return ''; const d = new Date(t); return `${d.getMonth() + 1} 月 ${d.getDate()} 日`; };
 
   let toastTimer = 0;
-  function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('on'), 2400); }
+  function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('on'), 2600); }
 
   function render() {
     if (!S) return;
     const a = S.birth ? age(ymd(S.birth)) : null, m = a ? a.m : 0;
     $('title').firstChild.textContent = `${S.name || '福福'}成长清单`;
-    $('age').textContent = a ? `${a.m} 个月${a.d ? ` ${a.d} 天` : ''} · 外婆点一下就能改` : '外婆点一下就能改';
+    $('age').textContent = a ? `${a.m} 个月${a.d ? ` ${a.d} 天` : ''} · 外婆点一下就能标` : '外婆点一下就能标';
     document.querySelectorAll('#tabs button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.tab === ui.tab)));
     $('skills').hidden = ui.tab !== 'skills'; $('tips').hidden = ui.tab !== 'tips';
     renderSkills(m); renderTips(m);
-    $('foot').textContent = S.synced ? `桔子那边上次同步：${when(S.synced)}` : '';
+    $('foot').innerHTML = (S.updated ? `清单更新于 ${when(Date.parse(S.updated))}<br>` : '') + '外婆标的只存在这台手机上；把这个网页添加到主屏幕，标过的不容易丢';
+  }
+
+  function capOf(s) {
+    const x = mine[s.k];
+    if (!x) return `${s.month} 月龄`;
+    return `${s.month} 月龄 · <span class="by">外婆 ${when(x.t)} 标的${x.level !== s.level ? `（桔子那边是「${esc(s.level)}」）` : ''}</span>`;
   }
 
   function renderSkills(m) {
-    const all = S.skills, lv = (s) => LEVELS.indexOf(s.level);
+    const all = S.skills, lv = (s) => LEVELS.indexOf(lvOf(s));
     const cnt = [0, 1, 2].map((l) => all.filter((s) => lv(s) === l).length);
     const groups = { 在练: all.filter((s) => lv(s) < 2 && s.month >= m), 补练: all.filter((s) => lv(s) < 2 && s.month < m), 已熟练: all.filter((s) => lv(s) === 2) };
     if (!groups[ui.sk]) ui.sk = '在练';
@@ -174,8 +184,8 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
         return `<div class="dim">${esc(d)}<span>${list.length} 项</span></div>` + list.map((s) => `
           <div class="sk" data-k="${esc(s.k)}">
             <div class="n">${esc(s.name)}</div>
-            <div class="c">${s.month} 月龄${s.by === '外婆' && s.t ? ` · <span class="by">外婆 ${when(s.t)} 改过</span>` : ''}</div>
-            <div class="lv">${LEVELS.map((l) => `<button data-l="${l}" aria-pressed="${s.level === l}">${l}</button>`).join('')}</div>
+            <div class="c">${capOf(s)}</div>
+            <div class="lv">${LEVELS.map((l) => `<button data-l="${l}" aria-pressed="${lvOf(s) === l}">${l}</button>`).join('')}</div>
           </div>`).join('');
       }).join('') : `<div class="empty">${ui.sk === '补练' ? '没有要补练的' : '这一栏是空的'}</div>`}</section>`;
   }
@@ -194,37 +204,26 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
   async function load(quiet) {
     $('reload').classList.add('spin');
     try {
-      const r = await fetch(`${API}/api/state`, { cache: 'no-store' });
-      if (!r.ok) throw new Error(`服务器回了 ${r.status}`);
+      const r = await fetch(`data.json?v=${Date.now()}`, { cache: 'no-store' });
+      if (!r.ok) throw new Error(String(r.status));
       S = await r.json(); $('err').hidden = true;
-      try { localStorage.setItem('fufu-state', JSON.stringify(S)); } catch (e) {}
+      store.set('fufu-data', S);
       render();
       if (!quiet) toast('已是最新');
     } catch (e) {
-      $('errText').textContent = S ? '连不上，下面是上次看到的内容' : '连不上，稍后再试';
+      $('errText').textContent = S ? '网络不好，下面是上次看到的内容' : '读不到清单，稍后再试';
       $('err').hidden = false;
     } finally { $('reload').classList.remove('spin'); }
   }
 
-  async function setLevel(row, level) {
-    const k = row.dataset.k, s = S.skills.find((x) => x.k === k); if (!s || s.level === level) return;
-    const prev = { level: s.level, t: s.t, by: s.by }, box = row.querySelector('.lv');
-    Object.assign(s, { level, t: Date.now(), by: '外婆' });
-    box.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.l === level)));
-    box.classList.add('busy');
-    try {
-      const r = await fetch(`${API}/api/level`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ k, level }) });
-      const j = await r.json().catch(() => ({}));
-      if (!r.ok) throw new Error(j.error || `服务器回了 ${r.status}`);
-      if (j.t) s.t = j.t;
-      try { localStorage.setItem('fufu-state', JSON.stringify(S)); } catch (e) {}
-      toast(`已改成「${level}」，桔子那边会同步`);
-      row.querySelector('.c').innerHTML = `${s.month} 月龄 · <span class="by">外婆 ${when(s.t)} 改过</span>`;
-    } catch (e) {
-      Object.assign(s, prev);
-      box.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.l === prev.level)));
-      toast(`没存上：${e.message || '网络不好'}，再点一次试试`);
-    } finally { box.classList.remove('busy'); }
+  function setLevel(row, level) {
+    const k = row.dataset.k, s = S.skills.find((x) => x.k === k); if (!s || lvOf(s) === level) return;
+    mine[k] = { level, t: Date.now() };
+    if (!store.set('fufu-mine', mine)) { delete mine[k]; toast('这台手机存不了，换个浏览器打开试试'); return; }
+    if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});   // 请浏览器别清掉
+    row.querySelectorAll('.lv button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.l === level)));
+    row.querySelector('.c').innerHTML = capOf(s);
+    toast(`记下了「${level}」`);
   }
 
   document.addEventListener('click', (e) => {
@@ -235,10 +234,10 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
     if (b.dataset.l) { setLevel(b.closest('.sk'), b.dataset.l); return; }
     if (b.id === 'reload' || b.id === 'retry') load();
   });
-  // 切回这个页面时自动取一次最新的
+  // 切回这个页面时取一次最新的清单
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && S) load(true); });
 
-  try { const c = JSON.parse(localStorage.getItem('fufu-state') || 'null'); if (c && c.skills) { S = c; render(); } } catch (e) {}
+  if (S && S.skills) render();
   load(true);
 })();
 </script>
