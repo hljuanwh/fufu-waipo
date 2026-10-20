@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""把 Obsidian 里的技能清单和本周要点导出成外婆页的 docs/data.json。
+"""把 Obsidian 里的技能清单、本周要点和早教计划导出成外婆页的 docs/data.json。
 
 内容没变就什么都不做；变了才写文件。加 --push 会顺手 commit 并推到 GitHub（推失败重试 3 次）。
 每晚 23:30 的 jz-night 任务会跑：python3 ~/Documents/Claude/福福外婆页/scripts/export.py --push
-解析规则跟工作台插件一致（parseList / parseTips）。
+解析规则跟工作台插件一致（parseList / parseTips / parseZjPlan / parseZjSched / parseZjLog），改了要一起改。
 """
 import json
 import os
@@ -16,6 +16,10 @@ from datetime import datetime, timezone, timedelta
 VAULT = os.path.expanduser('~/Documents/Sherry')
 SKILLS = os.path.join(VAULT, '12-工作台/育儿/技能清单.md')
 TIPS = os.path.join(VAULT, '12-工作台/育儿/本周要点.md')
+ZJ_PLAN = os.path.join(VAULT, '12-工作台/育儿/早教计划.md')
+ZJ_SCHED = os.path.join(VAULT, '12-工作台/育儿/早教每日安排.md')
+ZJ_LOG = os.path.join(VAULT, '12-工作台/育儿/早教记录.md')
+ZJ_STAR = re.compile(r'儿保\s*(18|21|24)\s*月')   # 24 月龄儿保要测的
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(REPO, 'docs', 'data.json')
 BABY = {'name': '福福', 'birth': '2024-11-10'}
@@ -69,6 +73,68 @@ def read_tips():
     return out
 
 
+def read(path):
+    try:
+        with open(path, encoding='utf-8') as fh:
+            return fh.read()
+    except FileNotFoundError:
+        return ''
+
+
+def cells(line):
+    return [x.strip() for x in re.sub(r'\|\s*$', '', re.sub(r'^\s*\|', '', line)).split('|')]
+
+
+def read_zj(skills):
+    """早教：梯子（早教计划.md 的 ### 类别 · 教具 + 表格）、一周课表、桔子在工作台填的熟练度（早教记录.md 最后一次）"""
+    names = sorted(skills, key=lambda x: -len(x['name']))
+    log = {}
+    for line in read(ZJ_LOG).split('\n'):
+        m = re.match(r'^- (\d{4}-\d{2}-\d{2}) (.+?)：(.+?)\s*\[熟练度::\s*(不会|会|熟练)\]\s*$', line)
+        if m:
+            key = f'{m.group(2)}|{m.group(3).strip()}'
+            if key not in log or m.group(1) >= log[key]['date']:
+                log[key] = {'lv': m.group(4), 'date': m.group(1)}
+    level = {x['k']: x['level'] for x in skills}
+    cats, cur = [], None
+    for line in read(ZJ_PLAN).split('\n'):
+        h = re.match(r'^###\s+(.+?)\s*$', line)
+        if h:
+            name, *rest = h.group(1).split(' · ')
+            cur = {'name': name.strip(), 'tools': ' · '.join(rest).strip(), 'rungs': []}
+            cats.append(cur)
+            continue
+        if re.match(r'^##?\s', line):
+            cur = None
+            continue
+        if not cur or not re.match(r'^\s*\|', line):
+            continue
+        c = cells(line)
+        if len(c) < 4 or c[0] == '阶' or re.fullmatch(r'[-:\s]*', c[0]):
+            continue
+        ref, at = c[3], c[3].find('技能清单')
+        sk = next((x for x in names if at >= 0 and ref.find(f'「{x["name"]}」', at) >= 0), None) if at >= 0 else None
+        text = re.sub(r'^★\s*', '', c[1])
+        key = f'{cur["name"]}|{text}'
+        pre = c[0] == '✓'
+        lv = level.get(sk['k']) if sk else (log[key]['lv'] if key in log else ('熟练' if pre else '不会'))
+        cur['rungs'].append({'key': key, 'n': c[0], 'pre': pre, 'text': text, 'ok': '' if c[2] == '—' else c[2], 'ref': ref,
+                             'star': c[1].startswith('★') or bool(ZJ_STAR.search(ref)), 'skill': sk['k'] if sk else '',
+                             'lv': lv or '不会', 'date': log.get(key, {}).get('date', '')})
+    sched = read(ZJ_SCHED)
+    start = re.search(r'^开始:\s*(\d{4}-\d{2}-\d{2})', sched, re.M)
+    days = {}
+    for line in sched.split('\n'):
+        if not re.match(r'^\s*\|', line):
+            continue
+        c = cells(line)
+        w = re.search(r'周([一二三四五六])', c[0] if c else '')
+        if w:
+            days['日一二三四五六'.index(w.group(1))] = [x for x in c[1:] if x]
+    return {'start': start.group(1) if start else '', 'days': days, 'A': days.get(1, []), 'B': days.get(2, []),
+            'cats': [x for x in cats if x['rungs']]}
+
+
 def git(*args):
     return subprocess.run(['git', '-C', REPO, *args], capture_output=True, text=True)
 
@@ -95,7 +161,8 @@ def main():
     if not skills:
         print('技能清单读出来是空的（iCloud 没下载？），不导出')
         return 1
-    data = {**BABY, 'skills': skills, 'tips': read_tips()}
+    data = {**BABY, 'skills': skills, 'tips': read_tips(), 'zj': read_zj(skills)}
+    data = json.loads(json.dumps(data, ensure_ascii=False))   # 课表的星期几变成字符串键，跟读回来的旧文件比得上
     old = None
     if os.path.exists(OUT):
         with open(OUT, encoding='utf-8') as fh:
@@ -107,7 +174,7 @@ def main():
     with open(OUT, 'w', encoding='utf-8') as fh:
         json.dump(data, fh, ensure_ascii=False, indent=1)
         fh.write('\n')
-    print(f'已导出：{len(skills)} 项技能、{len(data["tips"])} 条要点')
+    print(f'已导出：{len(skills)} 项技能、{len(data["tips"])} 条要点、{len(data["zj"]["cats"])} 类早教')
     if not pushing:
         return 0
     git('add', 'docs/data.json')

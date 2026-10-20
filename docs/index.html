@@ -72,9 +72,9 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
 .lv button:active{transform:scale(.95)}
 .lv button[aria-pressed="true"]{font-weight:600;box-shadow:none}
 .lv button[aria-pressed="true"]::before{content:"✓ "}
-.lv button[aria-pressed="true"][data-l="不会"]{background:#DADDE5;color:var(--ink)}
-.lv button[aria-pressed="true"][data-l="会"]{background:var(--lime);color:var(--lime-ink)}
-.lv button[aria-pressed="true"][data-l="熟练"]{background:var(--mint);color:var(--mint-ink)}
+.lv button[aria-pressed="true"]:is([data-l="不会"],[data-zl="不会"]){background:#DADDE5;color:var(--ink)}
+.lv button[aria-pressed="true"]:is([data-l="会"],[data-zl="会"]){background:var(--lime);color:var(--lime-ink)}
+.lv button[aria-pressed="true"]:is([data-l="熟练"],[data-zl="熟练"]){background:var(--mint);color:var(--mint-ink)}
 .empty{padding:28px 0 12px;text-align:center;color:var(--mute)}
 
 /* 本周要点 */
@@ -95,6 +95,46 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
 .toast{position:fixed;left:50%;bottom:calc(36px + env(safe-area-inset-bottom));transform:translate(-50%,20px);opacity:0;pointer-events:none;
   background:#1F2026;color:#fff;font-size:15px;padding:12px 20px;border-radius:var(--r-pill);transition:opacity .2s,transform var(--spring);width:max-content;max-width:calc(100vw - 48px);text-align:center}
 .toast.on{opacity:1;transform:translate(-50%,0)}
+/* 今天玩什么（早教）：一样一块，类别｜玩什么｜做到什么算熟练｜不会 会 熟练；★ = 24 个月儿保要测的 */
+.zjhd{display:flex;align-items:center;gap:12px}
+.zjhd h2{margin:0;font:600 20px/1.3 var(--sans)}
+.zjhd h2 small{display:block;margin-top:2px;font:400 14px/1.4 var(--sans);color:var(--mute)}
+.zjhd .icb{width:40px;height:40px}
+.zjtip{display:flex;align-items:center;gap:6px;margin-top:12px;padding:10px 12px;border-radius:var(--r-ctl);background:#FFF6DC;color:#8A5A00;font-size:14px;line-height:1.4}
+.star{display:inline-block;flex:none;width:16px;height:16px;vertical-align:-2px}
+.star path{fill:#F7C548;stroke:#E8A317;stroke-width:1.6;stroke-linejoin:round}
+.zj{padding:18px 0;border-bottom:1px solid var(--line)}
+.zj:first-child{padding-top:4px}.zj:last-child{border-bottom:0;padding-bottom:4px}
+.zj .k{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--mute);margin-bottom:4px}
+.zj .k b{font-weight:600;color:var(--ink2)}
+.zj .k .tag{height:22px;line-height:22px;padding:0 9px;border-radius:var(--r-pill);background:var(--lav);color:var(--lav-ink);font-size:13px;font-weight:500}
+.zj .k .did{color:var(--mint-ink)}
+.zj .n{font:600 18px/1.5 var(--sans)}
+.zj .n .star{margin-right:4px;width:17px;height:17px}
+.zj .c{font-size:14px;color:var(--ink2);margin-top:4px;line-height:1.55}
+.zjnote{margin:2px 4px 0;font-size:14px;color:var(--mute);line-height:1.6}
+/* 每一类要练什么（右上角按钮打开，盖满屏幕） */
+.sheet{position:fixed;inset:0;z-index:20;background:#F3F5F8;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.sheet .wrap{padding-top:max(16px,env(safe-area-inset-top))}
+.sheet .top{position:sticky;top:0;z-index:1;margin:0 -16px 12px;padding:12px 20px;background:rgba(243,245,248,.94);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+.sheet .top h1{font-size:22px}
+.zg{margin:22px 4px 8px;font:600 15px/1.3 var(--sans);color:var(--ink2)}
+.zg:first-of-type{margin-top:4px}
+.zc .hd{display:flex;align-items:baseline;gap:8px;margin-bottom:4px}
+.zc .hd b{font:600 18px/1.4 var(--sans)}
+.zc .hd span{font-size:13px;color:var(--mute)}
+.zr{display:grid;grid-template-columns:22px minmax(0,1fr);gap:4px 10px;padding:12px 0;border-top:1px solid var(--line)}
+.zr .no{font:600 14px/26px var(--sans);color:var(--faint);text-align:center}
+.zr .t{font:500 16px/1.55 var(--sans)}
+.zr .t .star{margin-right:3px}
+.zr .c{font-size:14px;color:var(--ink2);line-height:1.5;margin-top:2px}
+.zr .p{display:inline-block;margin-top:6px;height:24px;line-height:24px;padding:0 10px;border-radius:var(--r-pill);font-size:13px;font-weight:500;background:var(--fill);color:var(--mute)}
+.zr .p.l1{background:var(--lime);color:var(--lime-ink)}.zr .p.l2{background:var(--mint);color:var(--mint-ink)}
+.zr.now{margin:0 -10px;padding:12px 10px;border-radius:var(--r-tile);border-top-color:transparent;background:#fff;box-shadow:var(--sh-ctl)}
+.zr.now+.zr{border-top-color:transparent}
+.zr.now .p{background:#1F2026;color:#fff}
+.zr.pre .t{color:var(--ink2)}
+body.lock{overflow:hidden}
 [hidden]{display:none!important}
 </style>
 </head>
@@ -106,13 +146,19 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
   </header>
   <div class="err" id="err" hidden><span id="errText">连不上，稍后再试</span><button id="retry">再试一次</button></div>
   <nav class="seg main-seg" id="tabs">
-    <button data-tab="skills" aria-pressed="true">技能清单</button>
+    <button data-tab="zj" aria-pressed="true">今天玩什么</button>
+    <button data-tab="skills" aria-pressed="false">技能清单</button>
     <button data-tab="tips" aria-pressed="false">本周要点</button>
   </nav>
-  <main id="skills"></main>
+  <main id="zj"></main>
+  <main id="skills" hidden></main>
   <main id="tips" hidden></main>
   <p class="foot" id="foot"></p>
 </div>
+<div class="sheet" id="sheet" hidden><div class="wrap">
+  <header class="top"><h1>每一类要练什么<small>从上往下练，填了「熟练」就换下一个</small></h1><button class="icb" id="zjclose" aria-label="关上"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></header>
+  <div id="sheetBody"></div>
+</div></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script>
 (() => {
@@ -126,11 +172,22 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
     get(k, d) { try { return JSON.parse(localStorage.getItem(k) || 'null') || d; } catch (e) { return d; } },
     set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } },
   };
-  const ui = Object.assign({ tab: 'skills', sk: '在练', topic: '全部' }, store.get('fufu-ui', {}));
+  const ui = Object.assign({ tab: 'zj', sk: '在练', topic: '全部' }, store.get('fufu-ui', {}));
+  if (!ui.zjFirst) { ui.tab = 'zj'; ui.zjFirst = 1; }   // 加了「今天玩什么」以后，第一次打开先看它
   const saveUi = () => store.set('fufu-ui', ui);
   const mine = store.get('fufu-mine', {});   // { "23|名称": { level: "会", t: 毫秒 } }
   let S = store.get('fufu-data', null);       // 上次读到的清单，打不开时先显示它
   const lvOf = (s) => (mine[s.k] && LEVELS.includes(mine[s.k].level) ? mine[s.k].level : s.level);
+  // 早教：外婆填的熟练度存在 fufu-zj（{ "类别|玩什么": { level, date, t } }）；对应技能清单的那一阶，等级就是技能清单那一项（外婆点了两边一起变）
+  const zjMine = store.get('fufu-zj', {});
+  const STAR = '<svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8l2.8 5.7 6.3.9-4.6 4.4 1.1 6.2L12 17.1 6.4 20l1.1-6.2-4.6-4.4 6.3-.9z"/></svg>';
+  const WK = '日一二三四五六';
+  const zjLv = (r) => {
+    if (r.skill) { const s = S.skills.find((x) => x.k === r.skill); if (s) return lvOf(s); }
+    return zjMine[r.key] && LEVELS.includes(zjMine[r.key].level) ? zjMine[r.key].level : r.lv || (r.pre ? '熟练' : '不会');
+  };
+  const zjLast = (r) => { const a = (zjMine[r.key] && zjMine[r.key].date) || '', b = r.date || ''; return a > b ? a : b; };
+  let zjItems = [];
 
   /* 月龄：跟工作台一样按本地日期算 */
   const ymd = (s) => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
@@ -140,6 +197,29 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
     const now = new Date(); let m = (now.getFullYear() - birth.getFullYear()) * 12 + now.getMonth() - birth.getMonth();
     if (day0(now) < addMonths(birth, m)) m--;
     return { m, d: Math.round((day0(now) - addMonths(birth, m)) / 864e5) };
+  }
+  const ymdS = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  /* 今天玩哪几类、每类玩哪一阶（规则跟工作台插件 zjToday 一样，改了要一起改）：
+     周一到周六按课表；周日复习，从「开始」那周算，单周复习周一那组、双周复习周二那组。
+     每类玩第一个还没熟练的；今天填过的今天还显示它；全都熟练了（或周日）挑最久没练的熟练过的复习 */
+  function zjToday(Z, now) {
+    const dow = now.getDay(), t = ymdS(now), sunday = dow === 0;
+    let grp = '', names;
+    if (sunday) {
+      const st = Z.start ? ymd(Z.start) : day0(now), mon = new Date(st.getFullYear(), st.getMonth(), st.getDate() - ((st.getDay() + 6) % 7));
+      grp = Math.floor(Math.round((day0(now) - mon) / 864e5) / 7) % 2 === 0 ? 'A' : 'B'; names = Z[grp] || [];
+    } else {
+      names = Z.days[dow] || [];
+      grp = names.join() === (Z.A || []).join() ? 'A' : names.join() === (Z.B || []).join() ? 'B' : '';
+    }
+    const items = names.map((n) => Z.cats.find((c) => c.name === n)).filter(Boolean).map((c) => {
+      const R = c.rungs, todo = R.filter((r) => zjLv(r) !== '熟练'), done = R.filter((r) => zjLv(r) === '熟练');
+      const marked = R.filter((r) => zjLast(r) === t);
+      if (marked.length) return { c, r: marked[marked.length - 1], mode: sunday ? 'review' : 'learn', today: true };
+      if ((!sunday || !done.length) && todo.length) return { c, r: todo[0], mode: 'learn' };
+      return { c, r: done.reduce((a, b) => (zjLast(b) < zjLast(a) ? b : a)), mode: 'review' };
+    });
+    return { grp, sunday, items };
   }
   const when = (t) => { if (!t) return ''; const d = new Date(t); return `${d.getMonth() + 1} 月 ${d.getDate()} 日`; };
 
@@ -152,8 +232,8 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
     $('title').firstChild.textContent = `${S.name || '福福'}成长清单`;
     $('age').textContent = a ? `${a.m} 个月${a.d ? ` ${a.d} 天` : ''} · 外婆点一下就能标` : '外婆点一下就能标';
     document.querySelectorAll('#tabs button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.tab === ui.tab)));
-    $('skills').hidden = ui.tab !== 'skills'; $('tips').hidden = ui.tab !== 'tips';
-    renderSkills(m); renderTips(m);
+    $('skills').hidden = ui.tab !== 'skills'; $('tips').hidden = ui.tab !== 'tips'; $('zj').hidden = ui.tab !== 'zj';
+    renderZj(); renderSkills(m); renderTips(m);
     $('foot').innerHTML = (S.updated ? `清单更新于 ${when(Date.parse(S.updated))}<br>` : '') + '外婆标的只存在这台手机上；把这个网页添加到主屏幕，标过的不容易丢';
   }
 
@@ -188,6 +268,65 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
             <div class="lv">${LEVELS.map((l) => `<button data-l="${l}" aria-pressed="${lvOf(s) === l}">${l}</button>`).join('')}</div>
           </div>`).join('');
       }).join('') : `<div class="empty">${ui.sk === '补练' ? '没有要补练的' : '这一栏是空的'}</div>`}</section>`;
+  }
+
+  function renderZj() {
+    const Z = S.zj;
+    if (!Z || !Z.cats || !Z.cats.length) { $('zj').innerHTML = '<section class="card"><div class="empty">还没有早教计划</div></section>'; return; }
+    const now = new Date(), plan = zjToday(Z, now); zjItems = plan.items;
+    const left = Z.cats.reduce((n, c) => n + c.rungs.filter((r) => r.star && zjLv(r) !== '熟练').length, 0);
+    const sub = plan.sunday ? `周日 · 复习，${plan.items.length} 样` : `周${WK[now.getDay()]} · 今天玩 ${plan.items.length} 样，每样 6 分钟左右`;
+    $('zj').innerHTML = `
+      <section class="card">
+        <div class="zjhd"><h2>${now.getMonth() + 1} 月 ${now.getDate()} 日<small>${sub}</small></h2>
+          <button class="icb" id="zjmore" aria-label="每一类要练什么"><svg viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></svg></button></div>
+        <div class="zjtip">${STAR}<span>${left ? `星星是 24 个月儿保要测的，还有 ${left} 项没熟练` : '24 个月儿保要测的都熟练了'}</span></div>
+      </section>
+      <section class="card">${plan.items.map(({ c, r, mode, today }, i) => {
+        const steps = c.rungs.filter((x) => !x.pre), at = steps.indexOf(r);
+        return `<div class="zj" data-i="${i}">
+          <div class="k"><b>${esc(c.name)}</b>${mode === 'review' ? '<span class="tag">复习</span>' : at >= 0 ? `<span>第 ${at + 1} / ${steps.length} 个</span>` : ''}${today ? '<span class="did">今天填过</span>' : ''}</div>
+          <div class="n">${r.star ? STAR : ''}${esc(r.text)}</div>
+          ${r.ok ? `<div class="c">做到：${esc(r.ok)}</div>` : ''}
+          <div class="lv">${LEVELS.map((l) => `<button data-zl="${l}" aria-pressed="${zjLv(r) === l}">${l}</button>`).join('')}</div>
+        </div>`;
+      }).join('') || '<div class="empty">今天没有安排</div>'}</section>
+      <p class="zjnote">玩完点一下：<b>熟练</b>了，下次玩这一类就换下一个；<b>不会</b>、<b>会</b>，下次还玩这个。${plan.sunday ? '周日是复习，复习时不熟练了，会退回去重新练。' : ''}</p>`;
+  }
+
+  function renderSheet() {
+    const Z = S.zj; if (!Z) return;
+    const cur = new Map(zjItems.map((x) => [x.c.name, x.r])), seen = new Set();
+    $('sheetBody').innerHTML = `<div class="zjtip" style="margin:0 0 4px">${STAR}<span>星星是 24 个月儿保要测的</span></div>` +
+      [['一三五 · A 组', Z.A || []], ['二四六 · B 组', Z.B || []], ['其他', Z.cats.map((c) => c.name)]].map(([title, names]) => {
+        const cats = names.map((n) => Z.cats.find((c) => c.name === n)).filter((c) => c && !seen.has(c.name)); if (!cats.length) return '';
+        cats.forEach((c) => seen.add(c.name));
+        return `<div class="zg">${title}</div>` + cats.map((c) => {
+          const now = cur.get(c.name) || c.rungs.find((r) => zjLv(r) !== '熟练');
+          return `<section class="card zc"><div class="hd"><b>${esc(c.name)}</b><span>${esc(c.tools)}</span></div>${c.rungs.map((r) => {
+            const lv = zjLv(r);
+            return `<div class="zr${r === now ? ' now' : ''}${r.pre ? ' pre' : ''}"><span class="no">${r.pre ? '✓' : esc(r.n)}</span><div>
+              <div class="t">${r.star ? STAR : ''}${esc(r.text)}</div>${r.ok ? `<div class="c">做到：${esc(r.ok)}</div>` : ''}
+              <span class="p l${LEVELS.indexOf(lv)}">${r === now ? `现在练 · ${lv}` : lv}</span></div></div>`;
+          }).join('')}</section>`;
+        }).join('');
+      }).join('');
+  }
+  function sheet(open) {
+    if (open) renderSheet();
+    $('sheet').hidden = !open; document.body.classList.toggle('lock', open);
+    if (open) $('sheet').scrollTop = 0;
+  }
+
+  function setZj(i, level) {
+    const it = zjItems[i]; if (!it) return;
+    const r = it.r, now = new Date(), t = Date.now();
+    zjMine[r.key] = { level, date: ymdS(now), t };
+    if (!store.set('fufu-zj', zjMine)) { delete zjMine[r.key]; toast('这台手机存不了，换个浏览器打开试试'); return; }
+    if (r.skill) { mine[r.skill] = { level, t }; store.set('fufu-mine', mine); }
+    if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+    render();
+    toast(it.mode === 'review' ? `记下了「${level}」${level === '熟练' ? '，复习过了' : '，下次退回来再练'}` : level === '熟练' ? '记下了「熟练」，下次换下一个' : `记下了「${level}」，下次还玩这个`);
   }
 
   function renderTips(m) {
@@ -232,6 +371,9 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
     if (b.closest('#skseg')) { ui.sk = b.dataset.k; saveUi(); render(); return; }
     if (b.closest('#tchips')) { ui.topic = b.dataset.t; saveUi(); render(); return; }
     if (b.dataset.l) { setLevel(b.closest('.sk'), b.dataset.l); return; }
+    if (b.dataset.zl) { setZj(+b.closest('.zj').dataset.i, b.dataset.zl); return; }
+    if (b.id === 'zjmore') { sheet(true); return; }
+    if (b.id === 'zjclose') { sheet(false); return; }
     if (b.id === 'reload' || b.id === 'retry') load();
   });
   // 切回这个页面时取一次最新的清单
