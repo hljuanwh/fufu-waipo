@@ -41,6 +41,12 @@
 
 部署：`cd worker && npx wrangler@4 deploy`（登录过期先 `npx wrangler@4 login`）。D1 库 `fufu-waipo` 在 APAC。
 
+## 添加到手机桌面（2026-10-20）
+
+- 图标是福福的卡通头像（戴小黄墨镜的笑脸、寸头碎刘海、薄荷绿底，她挑的），源文件 `docs/icons/icon.svg`；各尺寸 PNG 在 `docs/icons/`，`docs/manifest.webmanifest` 给安卓用，桌面上的名字叫「福福」。
+- 从桌面图标打开是全屏的「小程序」样子（standalone），没有浏览器地址栏，刷新用右上角的按钮。
+- **iPhone 注意**：从桌面图标打开的页面跟 Safari 里打开的**存储是分开的**。外婆之前在 Safari 里标过的等级，桌面图标那边看不到（会跟着桔子的等级）；以后都从桌面图标打开就行。安卓 Chrome 两边共用，没有这个问题。
+
 ## 注意
 
 - 页面不引用任何外部字体和 CDN，国内手机打开不会卡在加载资源上。
